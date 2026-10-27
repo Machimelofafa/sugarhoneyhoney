@@ -1,0 +1,141 @@
+<meta charset="utf-8">
+<title>Jogo da Despedida</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@500;700&display=swap">
+<style>
+/* Layout: uma tela de TV centralizada, controles discretos embaixo. Mundo escuro de fliperama, tema único por escolha. */
+:root {
+  --bg: #06050d;
+  --panel: #13102a;
+  --line: #2c2652;
+  --ink: #ece6ff;
+  --muted: #9a90c4;
+  --arrow: #e4dfa2;
+  --heart: #cc1020;
+  --display: 'Jost', 'Futura', 'Century Gothic', 'Avenir Next', 'Trebuchet MS', sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--display);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#app {
+  box-sizing: border-box;
+  height: 100%;
+  padding-block: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+#screen {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  background: #000;
+  image-rendering: pixelated;
+  touch-action: none;
+  cursor: pointer;
+}
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.keys { letter-spacing: .02em; }
+.keys b { color: var(--ink); font-weight: 700; }
+.toggles { display: flex; gap: 8px; }
+.bar button {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.bar button[aria-pressed="true"] { color: var(--arrow); border-color: var(--arrow); }
+.bar button:focus-visible, .tbtn:focus-visible { outline: 2px solid var(--arrow); outline-offset: 2px; }
+#touch {
+  display: none;
+  width: 100%;
+  max-width: 560px;
+  justify-content: space-between;
+  align-items: center;
+  touch-action: none;
+}
+body.touch #touch { display: flex; }
+body.touch .keys { display: none; }
+.cluster { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.pad { display: grid; grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(2, 54px); gap: 6px; }
+.pad [data-k="up"] { grid-column: 2; grid-row: 1; }
+.pad [data-k="left"] { grid-column: 1; grid-row: 2; }
+.pad [data-k="down"] { grid-column: 2; grid-row: 2; }
+.pad [data-k="right"] { grid-column: 3; grid-row: 2; }
+.tbtn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font: 700 12px/1 var(--display);
+  letter-spacing: .06em;
+  touch-action: none;
+}
+.cluster .tbtn { width: 58px; height: 58px; }
+.cluster .tbtn.mini { width: 40px; height: 40px; font-size: 11px; }
+@media (max-width: 360px) { .pad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 46px); } .pad .tbtn { width: 46px; height: 46px; } .cluster .tbtn { width: 50px; height: 50px; } }
+.tbtn.act { border-color: var(--heart); }
+.tbtn.on { background: #2a2350; }
+</style>
+
+<div id="app">
+  <canvas id="screen" width="340" height="238" aria-label="Tela do jogo"></canvas>
+  <div class="bar">
+    <span class="keys"><b>← →</b> andar · <b>Z</b> ou <b>↑</b> pular · <b>↓</b> abaixar · <b>X</b> soco / dar a mão · <b>C</b> chute · <b>P</b> pausa</span>
+    <span class="toggles">
+      <button id="bCrt" type="button" aria-pressed="true">Filtro de TV</button>
+      <button id="bCred" type="button" aria-pressed="false">Créditos</button>
+      <button id="bSom" type="button" aria-pressed="true">Som</button>
+      <button id="bFull" type="button">Tela cheia</button>
+    </span>
+  </div>
+  <div id="touch">
+    <div class="pad">
+      <button class="tbtn" type="button" data-k="up" aria-label="Pular">▲</button>
+      <button class="tbtn" type="button" data-k="left" aria-label="Esquerda">◀</button>
+      <button class="tbtn" type="button" data-k="down" aria-label="Descer">▼</button>
+      <button class="tbtn" type="button" data-k="right" aria-label="Direita">▶</button>
+    </div>
+    <div class="cluster">
+      <button class="tbtn mini" type="button" data-k="pause" aria-label="Pausa">II</button>
+      <button class="tbtn act" type="button" data-k="kick">CHUTE</button>
+      <button class="tbtn act" type="button" data-k="punch">SOCO</button>
+      <button class="tbtn act" type="button" data-k="jump">PULAR</button>
+    </div>
+  </div>
+</div>
+
+<script id="cenario" type="application/json">__CENARIO__</script>

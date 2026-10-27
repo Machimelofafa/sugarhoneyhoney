@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "jogo", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8123", "--directory", "jogo"], "port": 8123 }
+  ]
+}
