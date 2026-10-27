@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# Editores e sistema
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Logs e temporários
+*.log
+tmp/
+.tmp/
+
+# Configuração local do Claude Code (o launch.json é compartilhado)
+.claude/settings.local.json
+.claude/*.local.*
+
+# Saída do deploy
+_site/
